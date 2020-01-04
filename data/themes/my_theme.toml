@@ -1,0 +1,18 @@
+# Theme metadata
+name = "Anna"
+
+# Is theme light or dark?
+light = true
+
+# Primary
+primary = "#F0efef"
+
+# Menu
+menu_primary = "#fff"
+menu_text = "#729978"
+menu_text_active = "#FFFFFF"
+menu_title = "#FFFFFF"
+
+# Home sections
+home_section_odd = "rgb(255, 255, 255)"
+home_section_even = "rgb(247, 247, 247)"
