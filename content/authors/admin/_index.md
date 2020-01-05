@@ -39,8 +39,7 @@ email: ""
 # Organizational groups that you belong to (for People widget)
 #   Set this to `[]` or comment out if you are not using People widget.
 user_groups:
-- Researchers
-- Visitors
+- The Team
 ---
 
 Anna Yeaton is a PhD candidate at NYU School of Medicine studying Systems and Computational Biology. She is using single cell and deep learning methods to study AML and lung cancer.
