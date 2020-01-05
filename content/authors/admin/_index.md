@@ -23,7 +23,7 @@ interests:
 social:
 - icon: twitter
   icon_pack: fab
-  link: https://twitter.com/Anna-Yeaton
+  link: https://twitter.com/AnnaYeaton
 - icon: github
   icon_pack: fab
   link: https://github.com/ayeaton

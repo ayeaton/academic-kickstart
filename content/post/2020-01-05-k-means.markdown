@@ -1,0 +1,61 @@
+---
+title: K-Means
+author: Anna Yeaton
+date: '2020-01-05'
+slug: k-means
+categories: []
+tags: []
+subtitle: ''
+summary: 'Here we do K-means by hand!'
+authors: ["Anna Yeaton"]
+lastmod: '2020-01-05T18:42:22-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+
+Step 1. Choose the K number of clusters.
+
+Step 2. Split the data randomly into K groups.  
+
+Step 3. Iterate the following until the cluster assignments stop changing or until the predetermined number of iterations:
+
+  a) For each of the K clusters, compute the cluster centroid. The kth cluster centroid is the vector of the p feature means for the observations in the kth cluster. 
+  b) Assign each observation to the cluster whose centroid is the closest. 
+
+
+Here we will work with the Iris data. 
+
+```r
+data(iris)
+iris_data <- iris %>% 
+  select(c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width))
+```
+
+<img src="/post/2020-01-05-k-means_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+
+
+## Step 1. Choose K number of clusters: 
+
+```r
+K <- 2
+```
+
+
+## Step 2. Split the data randomly into K groups:
+
+```r
+set.seed(10)
+# Randomly assign a number, from 1 to K, to each of the observations. 
+rand_idx <- sample(c(TRUE, FALSE), nrow(iris_data), replace=TRUE, prob=c(0.5, 0.5))
+iris_data$cluster_id <- rand_idx
+```
+
+
+<img src="/post/2020-01-05-k-means_files/figure-html/unnamed-chunk-5-1.png" width="672" />
