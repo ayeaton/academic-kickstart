@@ -20,14 +20,11 @@ projects: []
 
 
 
-Step 1. Choose the K number of clusters.
-
-Step 2. Split the data randomly into K groups.  
-
-Step 3. Iterate the following until the cluster assignments stop changing or until the predetermined number of iterations:
-
-  a) For each of the K clusters, compute the cluster centroid. The kth cluster centroid is the vector of the p feature means for the observations in the kth cluster. 
-  b) Assign each observation to the cluster whose centroid is the closest. 
+1. Choose the K number of clusters.
+2. Split the data randomly into K groups.  
+3. Iterate the following until the cluster assignments stop changing or until the predetermined number of iterations:
+    * For each of the K clusters, compute the cluster centroid. The kth cluster centroid is the vector of the p feature means for the observations in the kth cluster. 
+    * Assign each observation to the cluster whose centroid is the closest. 
 
 
 Here we will work with the Iris data. 
@@ -59,3 +56,4 @@ iris_data$cluster_id <- rand_idx
 
 
 <img src="/post/2020-01-05-k-means_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+
