@@ -33,12 +33,19 @@ library(gganimate)
 
 
 We will work with the Iris data. 
+
+<button class="btn btn-primary" data-toggle="collapse" data-target="#BlockName"> Show/Hide </button>  
+<div id="BlockName" class="collapse"> 
+
 ```{r}
 data(iris)
 # select the numeric data
 iris_data <- iris %>% 
   select(c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width))
 ```
+
+</div>
+
 
 I did a Principal Components Analysis (PCA) using the iris_data, plotted the first two principal components, and colored the points by the iris species. This plot gives us a hint at the structure of the data. 
 ```{r echo=FALSE}
@@ -260,8 +267,10 @@ anim_save(animation = current_clust,
 
 ```
 
+ 
 
 ```{r echo=FALSE}
 knitr::include_graphics("/post/2020-01-05-k-means_files/figure-html/kmeans.gif")
 ```
+
 

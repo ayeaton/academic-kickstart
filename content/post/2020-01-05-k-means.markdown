@@ -1,7 +1,7 @@
 ---
 title: K-Means
 author: Anna Yeaton
-date: '08 January, 2020'
+date: '09 January, 2020'
 slug: k-means
 categories: []
 tags: ["Clustering"]
@@ -29,12 +29,19 @@ projects: []
 
 We will work with the Iris data. 
 
+<button class="btn btn-primary" data-toggle="collapse" data-target="#BlockName"> Show/Hide </button>  
+<div id="BlockName" class="collapse"> 
+
+
 ```r
 data(iris)
 # select the numeric data
 iris_data <- iris %>% 
   select(c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width))
 ```
+
+</div>
+
 
 I did a Principal Components Analysis (PCA) using the iris_data, plotted the first two principal components, and colored the points by the iris species. This plot gives us a hint at the structure of the data. 
 <img src="/post/2020-01-05-k-means_files/figure-html/unnamed-chunk-2-1.png" width="672" />
@@ -230,6 +237,8 @@ for( i in 2:5){
 
 
 
+ 
 
 ![](/post/2020-01-05-k-means_files/figure-html/kmeans.gif)<!-- -->
+
 
