@@ -1,7 +1,7 @@
 ---
 title: K-Means
 author: Anna Yeaton
-date: '2020-01-05'
+date: '`r format(Sys.time(), "%d %B, %Y")`'
 slug: k-means
 categories: []
 tags: ["Clustering"]
@@ -22,6 +22,7 @@ projects: []
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(tidyverse)
+library(gganimate)
 ```
 
 1. Choose the K number of clusters.
@@ -185,6 +186,18 @@ save_pcs <- pcs[,c("PC1", "PC2")]
 save_pcs$cluster <- rand_idx
 save_pcs$id <- 1
 
+cluster_centroids <- iris_data %>% 
+     group_by(cluster_id) %>% 
+     summarise_at(vars(c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)), 
+               ~mean(., na.rm=TRUE)) %>% 
+     column_to_rownames("cluster_id")
+  
+  centroid_points <- as.data.frame(scale(as.matrix(cluster_centroids),
+                                         pca$center, pca$scale) %*% as.matrix(pca$rotation[, c("PC1", "PC2")]))
+  centroid_points$cluster <- "Centroid"
+  centroid_points$id <- 1
+  save_pcs <- rbind(save_pcs, centroid_points)
+
 for( i in 2:5){
   
   dist_k1 <- apply(iris_data %>% select(-cluster_id), 
@@ -223,17 +236,32 @@ for( i in 2:5){
   
   centroid_points <- as.data.frame(scale(as.matrix(cluster_centroids),
                                          pca$center, pca$scale) %*% as.matrix(pca$rotation[, c("PC1", "PC2")]))
-  
+  centroid_points$cluster <- "Centroid"
+  centroid_points$id <- i
+  save_pcs <- rbind(save_pcs, centroid_points)
 
 }
 ```
 
 
-```{r}
-# save_pcs$group <- seq_len(nrow(save_pcs))
-# (current_clust <- ggplot(save_pcs, aes(PC1, PC2, group =group, color = cluster)) + 
-#   geom_point() + 
-#   theme_bw()  + 
-#   transition_states(id, transition_length = 3, state_length = 1))
+```{r chunk-label, eval=FALSE, include=FALSE}
+save_pcs$group <- seq_len(nrow(save_pcs))
+(current_clust <- ggplot(save_pcs, aes(PC1, PC2, group = group, color = cluster)) +
+  geom_point() +
+  theme_bw()  +
+  scale_color_manual(name = "Group",
+                       values = c(One = "#0E84B4",
+                                  Two = "#9E8356",
+                                  Centroid = "red")) +
+  transition_states(id, transition_length = 1, state_length = 1))
+
+anim_save(animation = current_clust,
+              file = "/Users/anna/Documents/academic-kickstart/static/post/2020-01-05-k-means_files/figure-html/kmeans.gif")
+
+```
+
+
+```{r include=FALSE}
+knitr::include_graphics("/post/2020-01-05-k-means_files/figure-html/kmeans.gif")
 ```
 

@@ -1,7 +1,7 @@
 ---
 title: K-Means
 author: Anna Yeaton
-date: '2020-01-05'
+date: '08 January, 2020'
 slug: k-means
 categories: []
 tags: ["Clustering"]
@@ -170,6 +170,18 @@ save_pcs <- pcs[,c("PC1", "PC2")]
 save_pcs$cluster <- rand_idx
 save_pcs$id <- 1
 
+cluster_centroids <- iris_data %>% 
+     group_by(cluster_id) %>% 
+     summarise_at(vars(c(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)), 
+               ~mean(., na.rm=TRUE)) %>% 
+     column_to_rownames("cluster_id")
+  
+  centroid_points <- as.data.frame(scale(as.matrix(cluster_centroids),
+                                         pca$center, pca$scale) %*% as.matrix(pca$rotation[, c("PC1", "PC2")]))
+  centroid_points$cluster <- "Centroid"
+  centroid_points$id <- 1
+  save_pcs <- rbind(save_pcs, centroid_points)
+
 for( i in 2:5){
   
   dist_k1 <- apply(iris_data %>% select(-cluster_id), 
@@ -208,18 +220,21 @@ for( i in 2:5){
   
   centroid_points <- as.data.frame(scale(as.matrix(cluster_centroids),
                                          pca$center, pca$scale) %*% as.matrix(pca$rotation[, c("PC1", "PC2")]))
-  
+  centroid_points$cluster <- "Centroid"
+  centroid_points$id <- i
+  save_pcs <- rbind(save_pcs, centroid_points)
 
 }
 ```
 
 
 
+
+
+
 ```r
-# save_pcs$group <- seq_len(nrow(save_pcs))
-# (current_clust <- ggplot(save_pcs, aes(PC1, PC2, group =group, color = cluster)) + 
-#   geom_point() + 
-#   theme_bw()  + 
-#   transition_states(id, transition_length = 3, state_length = 1))
+knitr::include_graphics("/post/2020-01-05-k-means_files/figure-html/kmeans.gif")
 ```
+
+![](/post/2020-01-05-k-means_files/figure-html/kmeans.gif)<!-- -->
 
