@@ -232,9 +232,4 @@ for( i in 2:5){
 
 
 
-```r
-knitr::include_graphics("/post/2020-01-05-k-means_files/figure-html/kmeans.gif")
-```
-
-![](/post/2020-01-05-k-means_files/figure-html/kmeans.gif)<!-- -->
 

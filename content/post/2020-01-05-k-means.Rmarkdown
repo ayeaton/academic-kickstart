@@ -261,7 +261,7 @@ anim_save(animation = current_clust,
 ```
 
 
-```{r include=FALSE}
+```{r echo=FALSE}
 knitr::include_graphics("/post/2020-01-05-k-means_files/figure-html/kmeans.gif")
 ```
 
