@@ -1,0 +1,184 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(gganimate)
+library(ggnewscale)
+library(xfun)
+```
+
+```{r}
+data(iris)
+# select the numeric data
+iris_data <- iris %>% 
+  mutate(Species = make.names(Species, unique = T)) %>% 
+  column_to_rownames("Species") 
+```
+
+```{r}
+library(palmerpenguins)
+head(penguins)
+ 
+penguins_data <- penguins %>% 
+  mutate(Species = make.names(species, unique = T)) %>% 
+  column_to_rownames("Species") %>% 
+  select(bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g) %>% 
+  filter(!is.na(bill_length_mm))
+
+
+```
+
+
+I did a Principal Components Analysis (PCA) using the iris_data, plotted the first two principal components, and colored the points by the iris species. This plot gives us a hint at the structure of the data. 
+```{r echo=FALSE}
+pca <- prcomp(penguins_data)
+set.seed(12)
+pcs <- as.data.frame(pca$x)
+```
+
+```{r}
+sq_euclidean_dist <- function(x1, x2) {
+  sum((x1 - x2) ^ 2)
+}
+  background = "#FFE39B"
+```
+
+```{r}
+data <- pcs
+K = 3 # we set the number of clusters to two for simplicity
+it = 10
+cluster_names <- numbers_to_words(1:K)
+
+set.seed(10)
+# Randomly assign a number, from 1 to K, to each of the observations. 
+
+# Here I sampled from One or Two (because K equals two), for each data point in data.
+rand_idx <- sample(cluster_names, nrow(data), replace=TRUE)
+# I add a column to the data called cluster_id with the randomly assigned groups. 
+data$cluster_id <- rand_idx
+
+
+cluster_centroids <- data %>% 
+ group_by(cluster_id) %>%
+   summarise_all(~mean(., na.rm=TRUE)) %>%
+ column_to_rownames("cluster_id")
+
+
+for(i in 1:nrow(cluster_centroids)) {
+    newname_dist = paste0("distance_", rownames(cluster_centroids[i,]))
+
+    current_distance <- apply(data %>% select(starts_with("PC")), 1, function(y) {sq_euclidean_dist(as.numeric(y),
+                                                      as.numeric(cluster_centroids[i,]))})
+    data[[newname_dist]] <- current_distance
+}
+
+
+for(i in 1:nrow(cluster_centroids)) {
+  newname_PC1 = paste0("centroid", rownames(cluster_centroids[i,]), "_PC1")
+  newname_PC2 = paste0("centroid", rownames(cluster_centroids[i,]), "_PC2")
+  
+  data[[newname_PC1]] <- cluster_centroids$PC1[i]
+  data[[newname_PC2]] <- cluster_centroids$PC2[i]
+}
+
+
+# make one long df 
+total_data <- c()
+current_data <- data
+
+for(k in 1:it){
+  
+  #strip data 
+  current_data <- current_data %>% 
+    select(PC1, PC2, PC3, PC4, cluster_id)  
+  
+  # calculate cluster centroids based on cluster identities 
+  cluster_centroids <- current_data %>% 
+   group_by(cluster_id) %>%
+     summarise_all(~mean(., na.rm=TRUE)) %>%
+   column_to_rownames("cluster_id")
+  
+  for(i in 1:nrow(cluster_centroids)) {
+      newname_dist = paste0("distance_", rownames(cluster_centroids[i,]))
+  
+      current_distance <- apply(current_data %>% select(starts_with("PC")), 1, function(y) {sq_euclidean_dist(as.numeric(y),
+                                                        as.numeric(cluster_centroids[i,]))})
+      current_data[[newname_dist]] <- current_distance
+  }
+  
+  
+  for(i in 1:nrow(cluster_centroids)) {
+    newname_PC1 = paste0("centroid", rownames(cluster_centroids[i,]), "_PC1")
+    newname_PC2 = paste0("centroid", rownames(cluster_centroids[i,]), "_PC2")
+    
+    current_data[[newname_PC1]] <- cluster_centroids$PC1[i]
+    current_data[[newname_PC2]] <- cluster_centroids$PC2[i]
+  }
+    
+  current_data$iteration <- k
+  
+  total_data <- rbind(total_data, current_data)
+  
+  # calculate new centroids
+  distances <- current_data %>% 
+    select(starts_with("distance")) %>% 
+    select(order(colnames(.)))
+  
+  idx <- apply(distances, 1, function(x){which.min(x)})
+  idx <-  numbers_to_words(idx)
+
+  current_data$cluster_id <- idx
+}
+
+```
+
+```{r}
+current_clust <- ggplot(total_data, aes(PC1, PC2)) + 
+  geom_point(size = 3, alpha = 0.7, color = "black") +
+  theme(panel.background = element_rect(fill = background, color = background), 
+          panel.grid.major = element_line(color = background),
+          panel.grid.minor = element_line(color = background),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank()) +
+  transition_states(iteration, transition_length = 1, state_length = 1)
+
+ggsci_cols <- c("red", "purple", "orange", "brown", "indigo")
+
+for(k in 1:K){
+  color = ggsci_cols[k]
+  cluster_name <- numbers_to_words(k)
+  newname_PC1 = paste0("centroid", cluster_name, "_PC1")
+  newname_PC2 = paste0("centroid", cluster_name, "_PC2")
+  newname_dist = paste0("distance_", cluster_name)
+
+  current_clust <- current_clust + 
+      geom_segment(aes(x = !!sym(newname_PC1), y = !!sym(newname_PC2), xend = PC1, yend = PC2,
+                 color = -!!sym(newname_dist), alpha = -log(!!sym(newname_dist)))) + 
+    ggsci::scale_color_material(color) +
+    geom_point(aes(!!sym(newname_PC1), y = !!sym(newname_PC2), size=2), color = color) +
+    new_scale_color() 
+}
+
+current_clust <- current_clust +
+  theme(legend.position = "none")
+
+animate(current_clust, height = 800, width =800)
+
+anim_save(file = "/Users/ay1392/Documents/kmeans.gif")
+
+```
+
+
+# for later
+```{r}
+data <- data %>% 
+  rownames_to_column("Species") %>% 
+  separate(Species, c("species", NA), sep = "[.]") 
+```
