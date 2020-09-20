@@ -20,6 +20,17 @@ output:
     variant: markdown_github
 ---
 
+```{r setup, message = FALSE, warning = FALSE, include = FALSE}
+filename = knitr::current_input()
+file = gsub(pattern = "\\.Rmarkdown$", "", filename)
+path = paste0("../../static/post/", file, "_files/figure-html/")
+dir.create(path)
+knitr::opts_chunk$set(fig.path = path,
+                      echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(base.dir = path)
+```
+
+
 Takes time (minutes) because I calculated everything in the app. To be fixed later.
 
 More explanations to come. 
@@ -77,7 +88,7 @@ The principal components will be our input to K-means.
 data <- pcs
 ```
 
-We decide on the K, or how many clusters we will consider. As well as the number of iterations of the algorithm. 
+We decide on the K, or how many clusters we will consider, as well as the number of iterations of the algorithm. 
 ```{r}
 K = 3 # we set the number of clusters to two for simplicity
 it = 10
