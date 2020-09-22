@@ -114,8 +114,7 @@ background = "#FFE39B"
           axis.ticks.y=element_blank()))
 ```
 
-<img src="post/2020-01-05-k-means_files/figure-html/unnamed-chunk-7-1.png" width="480" />
-
+![Example image](/static/post/2020-01-05-k-means_files/figure-html/unnamed-chunk-7-1.png)
 
 Then we calculate the cluster centroids. We group all data points from the same cluster, and we take the mean.
 
