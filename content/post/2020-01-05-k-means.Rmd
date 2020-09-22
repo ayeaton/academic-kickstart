@@ -20,11 +20,11 @@ output:
     variant: markdown_github
 ---
 
-```{r setup, message = FALSE, warning = FALSE, include = FALSE}
+```{r setup, echo = FALSE, warning=FALSE, include=FALSE}
+library(here)
 filename = knitr::current_input()
-file = gsub(pattern = "\\.Rmarkdown$", "", filename)
-path = paste0("../../static/post/", file, "_files/figure-html/")
-dir.create(path)
+file = gsub(pattern = "\\.Rmd$", "", filename)
+path = here(paste0("static/post/", file, "_files/figure-html/"))
 knitr::opts_chunk$set(fig.path = path,
                       echo = TRUE, warning = FALSE, message = FALSE)
 knitr::opts_knit$set(base.dir = path)
@@ -106,7 +106,7 @@ cluster_id <- sample(cluster_names, nrow(data), replace=TRUE)
 We plot our data and the random cluster assignments
 ```{r}
 background = "#FFE39B"
-current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
+(current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
   geom_point(size = 3, alpha = 0.7) +
   theme(panel.background = element_rect(fill = background, color = background), 
           panel.grid.major = element_line(color = background),
@@ -114,7 +114,7 @@ current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) 
           axis.text.x=element_blank(),
           axis.ticks.x=element_blank(),
           axis.text.y=element_blank(),
-          axis.ticks.y=element_blank()) 
+          axis.ticks.y=element_blank()))
 ```
 
 Then we calculate the cluster centroids. We group all data points from the same cluster, and we take the mean. 
@@ -133,10 +133,9 @@ distances <- apply(cluster_centroids, 1, function(x) {
 cluster_id <- apply(distances, 1, function(x) colnames(distances)[which.min(x)])
 ```
 
-We plot our data and the random cluster assignments
+We plot our data and the new cluster assignments
 ```{r}
-background = "#FFE39B"
-current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
+(current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
   geom_point(size = 3, alpha = 0.7) +
   theme(panel.background = element_rect(fill = background, color = background), 
           panel.grid.major = element_line(color = background),
@@ -144,7 +143,7 @@ current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) 
           axis.text.x=element_blank(),
           axis.ticks.x=element_blank(),
           axis.text.y=element_blank(),
-          axis.ticks.y=element_blank()) 
+          axis.ticks.y=element_blank()))
 ```
 
 
@@ -164,18 +163,6 @@ for(k in 1:100){
   
   distances <- apply(cluster_centroids, 1, function(x) {
   apply(data, 1, function(y) dist(rbind(x, y)))})
-
-  background = "#FFE39B"
-  current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
-    geom_point(size = 3, alpha = 0.7) +
-    theme(panel.background = element_rect(fill = background, color = background), 
-            panel.grid.major = element_line(color = background),
-            panel.grid.minor = element_line(color = background),
-            axis.text.x=element_blank(),
-            axis.ticks.x=element_blank(),
-            axis.text.y=element_blank(),
-            axis.ticks.y=element_blank()) 
-  
   cluster_id_new <- apply(distances, 1, function(x) colnames(distances)[which.min(x)])
   
   new_cluster_num <- sum(cluster_id != cluster_id_new)
@@ -187,6 +174,18 @@ for(k in 1:100){
     break
   }
 }
+```
 
+
+```{r}
+(current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
+  geom_point(size = 3, alpha = 0.7) +
+  theme(panel.background = element_rect(fill = background, color = background), 
+          panel.grid.major = element_line(color = background),
+          panel.grid.minor = element_line(color = background),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank()))
 ```
 
