@@ -130,7 +130,7 @@ head(cluster_centroids)
     ## one   -0.06626029 -0.03208532 -0.006769407  7.558616e-05
     ## three  0.16786748 -0.05317521 -0.038424090  1.546783e-02
 
-Then for each cluster centroid that we calculated, we find the distance to each data point. We will use the squared euclidean distance as our distance metric here. The squared euclidean distance won't get stuck in local minima as much as euclidean distance will.
+Then for each cluster centroid that we calculated, we find the distance to each data point. We will use the euclidean distance as our distance metric here. We might consider using squared euclidean distance next time, as it won't get stuck in local minima as much as euclidean distance.
 
 ``` r
 distances <- apply(cluster_centroids, 1, function(x) {
