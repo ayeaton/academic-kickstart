@@ -153,7 +153,7 @@ We plot our data and the new cluster assignments
           axis.ticks.y=element_blank()))
 ```
 
-![Example imae2](post/2020-01-05-k-means_files/figure-html/unnamed-chunk-10-1.png)
+![Example imae2](/post/2020-01-05-k-means_files/figure-html/unnamed-chunk-10-1.png)
 
 
 Great. Now we iterate the K-means algorithm until it converges or for a maximum of 100 iterations.
@@ -198,5 +198,5 @@ for(k in 1:100){
           axis.ticks.y=element_blank()))
 ```
 
-![Example imae2](post/2020-01-05-k-means_files/figure-html/unnamed-chunk-12-1.png)
+![Example imae2](/post/2020-01-05-k-means_files/figure-html/unnamed-chunk-12-1.png)
 
