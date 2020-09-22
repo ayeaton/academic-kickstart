@@ -1,29 +1,61 @@
+---
+title: K-Means
+author: Anna Yeaton
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+slug: k-means
+categories: []
+tags: ["Clustering"]
+subtitle: ''
+summary: 'Here we do K-means by hand!'
+authors: ["Anna Yeaton"]
+lastmod: '2020-01-05T18:42:22-05:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+output:
+  md_document:
+    variant: markdown_github
+---
+
+```{r setup, message = FALSE, warning = FALSE, include = FALSE}
+filename = knitr::current_input()
+file = gsub(pattern = "\\.Rmarkdown$", "", filename)
+path = paste0("../../static/post/", file, "_files/figure-html/")
+dir.create(path)
+knitr::opts_chunk$set(fig.path = path,
+                      echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(base.dir = path)
+```
+
+
 Takes time (minutes) because I calculated everything in the app. To be fixed later.
 
-More explanations to come.
+More explanations to come. 
 
 <br>
 
-<iframe width="1500" height="1000" scrolling="no" frameborder="no" src="https://herewego.shinyapps.io/kmeans/">
-</iframe>
+<iframe width="1500" height="1000" scrolling="no" frameborder="no"  src="https://herewego.shinyapps.io/kmeans/"> </iframe> 
+
 <br>
 
-The K-means algorithm is one of the most popular clustering algorithms. In this post, we will step through and write the K-means algorithm by hand.
 
-The broad steps of K-means are as follows:
+The K-means algorithm is one of the most popular clustering algorithms. In this post, we will step through and write the K-means algorithm by hand. 
 
--   Step 1. Choose the K number of clusters.
+The broad steps of K-means are as follows: 
 
--   Step 2. Split the data randomly into K groups.
+- Step 1. Choose the K number of clusters.
 
--   Step 3. Iterate until the cluster assignments stop changing:
--   1.  For each of the K clusters, compute the cluster centroid. The kth cluster centroid is the vector of the p feature means for the observations in the kth cluster.
+- Step 2. Split the data randomly into K groups.
 
--   1.  Assign each observation to the cluster whose centroid is the closest.
+- Step 3. Iterate until the cluster assignments stop changing:
+  - a) For each of the K clusters, compute the cluster centroid. The kth cluster centroid is the vector of the p feature means for the observations in the kth cluster. 
+  - b) Assign each observation to the cluster whose centroid is the closest.
 
-We load the necessary packages into our environment.
-
-``` r
+We load the necessary packages into our environment. 
+```{r load_packages, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(tidyverse)
 library(gganimate)
@@ -31,9 +63,8 @@ library(ggnewscale)
 library(xfun)
 ```
 
-We also load and format the data we want to use. In this post we will use the well known Iris dataset because it is accessible to everyone.
-
-``` r
+We also load and format the data we want to use. In this post we will use the well known Iris dataset because it is accessible to everyone. 
+```{r}
 data(iris)
 # select the numeric data
 iris_data <- iris %>% 
@@ -41,38 +72,30 @@ iris_data <- iris %>%
   column_to_rownames("Species") 
 ```
 
-The Iris dataset has four columns, which is hard to visualize because we can't plot four dimensional plots. We would have to choose two columns of interest and plot those.
-
-``` r
+The Iris dataset has four columns, which is hard to visualize because we can't plot four dimensional plots. We would have to choose two columns of interest and plot those. 
+```{r}
 head(iris_data)
 ```
 
-    ##          Sepal.Length Sepal.Width Petal.Length Petal.Width
-    ## setosa            5.1         3.5          1.4         0.2
-    ## setosa.1          4.9         3.0          1.4         0.2
-    ## setosa.2          4.7         3.2          1.3         0.2
-    ## setosa.3          4.6         3.1          1.5         0.2
-    ## setosa.4          5.0         3.6          1.4         0.2
-    ## setosa.5          5.4         3.9          1.7         0.4
+Instead of plotting and conducting K-means on the raw data, we will plot and use the first two principal components of a principal components analysis. Principal components analysis allows us to visualize the information contained in a high dimensional dataset in fewer dimensions. 
+```{r echo=FALSE}
+pca <- prcomp(iris_data) # run pca
+pcs <- pca$x # extract principal components 
+```
 
-Instead of plotting and conducting K-means on the raw data, we will plot and use the first two principal components of a principal components analysis. Principal components analysis allows us to visualize the information contained in a high dimensional dataset in fewer dimensions.
-
-The principal components will be our input to K-means.
-
-``` r
+The principal components will be our input to K-means. 
+```{r}
 data <- pcs
 ```
 
-We decide on the K, or how many clusters we will consider, as well as the number of iterations of the algorithm.
-
-``` r
+We decide on the K, or how many clusters we will consider, as well as the number of iterations of the algorithm. 
+```{r}
 K = 3 # we set the number of clusters to two for simplicity
 cluster_names <- numbers_to_words(1:K) # convert to english word clusters
 ```
 
-We first randomly assign cluster labels to each data point.
-
-``` r
+We first randomly assign cluster labels to each data point. 
+```{r}
 set.seed(10)
 # Randomly assign a number, from 1 to K, to each of the observations. 
 
@@ -81,8 +104,7 @@ cluster_id <- sample(cluster_names, nrow(data), replace=TRUE)
 ```
 
 We plot our data and the random cluster assignments
-
-``` r
+```{r}
 background = "#FFE39B"
 current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
   geom_point(size = 3, alpha = 0.7) +
@@ -95,23 +117,16 @@ current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) 
           axis.ticks.y=element_blank()) 
 ```
 
-Then we calculate the cluster centroids. We group all data points from the same cluster, and we take the mean.
-
-``` r
+Then we calculate the cluster centroids. We group all data points from the same cluster, and we take the mean. 
+```{r}
 cluster_centroids <- t(sapply(unique(cluster_id), 
        function(x) colMeans(data[cluster_id == x,])))
 
 head(cluster_centroids)
 ```
 
-    ##               PC1         PC2          PC3           PC4
-    ## two   -0.06437320  0.06967492  0.035103946 -1.167106e-02
-    ## one   -0.06626029 -0.03208532 -0.006769407  7.558616e-05
-    ## three  0.16786748 -0.05317521 -0.038424090  1.546783e-02
-
 Then for each cluster centroid that we calculated, we find the distance to each data point. We will use the squared euclidean distance as our distance metric here. The squared euclidean distance won't get stuck in local minima as much as euclidean distance will.
-
-``` r
+```{r}
 distances <- apply(cluster_centroids, 1, function(x) {
   apply(data, 1, function(y) dist(rbind(x, y)))})
 
@@ -119,8 +134,7 @@ cluster_id <- apply(distances, 1, function(x) colnames(distances)[which.min(x)])
 ```
 
 We plot our data and the random cluster assignments
-
-``` r
+```{r}
 background = "#FFE39B"
 current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) + 
   geom_point(size = 3, alpha = 0.7) +
@@ -133,9 +147,9 @@ current_clust <- ggplot(as.data.frame(data), aes(PC1, PC2, color = cluster_id)) 
           axis.ticks.y=element_blank()) 
 ```
 
-Great. Now we iterate the K-means algorithm until it converges or for a maximum of 100 iterations.
 
-``` r
+Great. Now we iterate the K-means algorithm until it converges or for a maximum of 100 iterations. 
+```{r}
 data <- pcs
 K = 4 # we set the number of clusters to two for simplicity
 cluster_names <- numbers_to_words(1:K) # convert to english word clusters
@@ -173,4 +187,6 @@ for(k in 1:100){
     break
   }
 }
+
 ```
+
